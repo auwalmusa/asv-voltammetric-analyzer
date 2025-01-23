@@ -18,13 +18,28 @@ def process_lsv(potential, current, params):
    return corrected
 
 def process_dpv(potential, current, params):
-   pulse_amplitude = params['amplitude']
-   step_potential = params['step_potential']
-   # DPV processing
-   forward_current = current[::2]
-   backward_current = current[1::2]
-   difference_current = forward_current - backward_current
-   return difference_current
+    # Ensure equal lengths
+    min_len = min(len(potential), len(current))
+    potential = potential[:min_len]
+    current = current[:min_len]
+    
+    # DPV processing
+    forward_current = current[::2]
+    backward_current = current[1::2]
+    # Ensure equal lengths for subtraction
+    min_pulse_len = min(len(forward_current), len(backward_current))
+    difference_current = forward_current[:min_pulse_len] - backward_current[:min_pulse_len]
+    
+    return difference_current
+
+# Modify data loading to print shapes
+try:
+    data = pd.read_csv(uploaded_file)
+    st.write(f"Potential shape: {data['Potential'].shape}")
+    st.write(f"Current shape: {data['Current'].shape}")
+except Exception as e:
+    st.error(str(e))
+
 
 def process_swv(potential, current, params):
    frequency = params['frequency']
